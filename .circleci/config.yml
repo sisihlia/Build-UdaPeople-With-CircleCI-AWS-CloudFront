@@ -43,7 +43,8 @@ jobs:
       - run:
           name: Build front-end
           command: |
-            # Your code here
+            cd frontend
+            npm run build
             exit 1
       - save_cache:
           paths: [frontend/node_modules]
@@ -67,7 +68,7 @@ jobs:
 
   test-frontend:
     docker:
-      # Docker image here
+      - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
       # Restore from cache
@@ -75,7 +76,7 @@ jobs:
                 
   test-backend:
     docker:
-      # Docker image here
+      - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
       # Restore from cache
@@ -83,7 +84,7 @@ jobs:
             
   scan-frontend:
     docker:
-      # Docker image here
+      - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
       # Restore from cache
@@ -91,7 +92,7 @@ jobs:
 
   scan-backend:
     docker:
-      # Docker image here
+      - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
       # Restore from cache
@@ -99,7 +100,7 @@ jobs:
 
   deploy-infrastructure:
     docker:
-      # Docker image here that supports AWS CLI
+      - image: amazon/aws-cli
     steps:
       # Checkout code from git
       - run:
@@ -169,7 +170,7 @@ jobs:
 
   deploy-frontend:
     docker:
-      # Docker image here that supports AWS CLI
+      - image: amazon/aws-cli
     steps:
       # Checkout code from git
       - run:
@@ -230,7 +231,7 @@ jobs:
 
   cloudfront-update:
     docker:
-      # Docker image here that supports AWS CLI
+      - image: amazon/aws-cli
     steps:
       # Checkout code from git
       - run:
