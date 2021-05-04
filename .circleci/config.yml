@@ -92,7 +92,6 @@ jobs:
           name: Back-end build
           command: |
             cd backend
-            npm i
             npm run test
             
   scan-frontend:
