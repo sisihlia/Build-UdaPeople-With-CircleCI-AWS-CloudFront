@@ -92,10 +92,7 @@ jobs:
           name: Back-end build
           command: |
             cd backend
-            npm i
-            npm audit fix --audit-level=critical --force
             npm run test
-            
   scan-frontend:
     docker:
       - image: circleci/node:13.8.0
@@ -107,7 +104,7 @@ jobs:
           name: Build front-end
           command: |
             cd frontend
-            npm audit --audit-level=critical
+            npm audit --audit-level=critical --force
 
   scan-backend:
     docker:
@@ -120,7 +117,7 @@ jobs:
           name: Back-end build
           command: |
             cd backend
-            npm audit fix --audit-level=critical --force
+            npm audit --audit-level=critical --force
 
   deploy-infrastructure:
     docker:
