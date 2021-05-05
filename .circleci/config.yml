@@ -104,7 +104,7 @@ jobs:
           name: Build front-end
           command: |
             cd frontend
-            npm audit --audit-level=critical --force
+            npm audit --audit-level=critical 
 
   scan-backend:
     docker:
@@ -117,7 +117,7 @@ jobs:
           name: Back-end build
           command: |
             cd backend
-            npm audit --audit-level=critical --force
+            npm audit fix --audit-level=critical --force
 
   deploy-infrastructure:
     docker:
