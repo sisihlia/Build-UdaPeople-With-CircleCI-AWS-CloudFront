@@ -92,6 +92,7 @@ jobs:
           name: Back-end build
           command: |
             cd backend
+            npm install
             npm run test
   scan-frontend:
     docker:
@@ -123,15 +124,15 @@ jobs:
     docker:
       - image: amazon/aws-cli
     steps:
-      # Checkout code from git
+      - checkout
       - run:
           name: Ensure back-end infrastructure exists
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
-              #--tags project=your-tag \
-              # --stack-name "your back-end stack name with workflow id" \
-              # --parameter-overrides ID="your workflow id"  
+              --tags project=your-tag \
+               --stack-name "your back-end stack name with workflow id" \
+               --parameter-overrides ID="your workflow id"  
               exit 1
       - run:
           name: Ensure front-end infrastructure exist
