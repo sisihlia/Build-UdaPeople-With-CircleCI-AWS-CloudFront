@@ -31,6 +31,9 @@ commands:
             #  Add revert code here. You can find this in the Getting Started section.
               exit 1
             fi
+
+orbs:
+  slack: circleci/slack@4.2.0
             
 jobs:
   build-frontend:
