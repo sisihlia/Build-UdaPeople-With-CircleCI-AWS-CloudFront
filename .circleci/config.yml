@@ -141,7 +141,7 @@ jobs:
           name: Back-end build
           command: |
             cd backend
-            npm audit --audit-level=critical 
+            npm audit fix --audit-level=critical --force
       - slack/notify:
           event: fail
           mentions: '@sisihlia.yuniyarti'
