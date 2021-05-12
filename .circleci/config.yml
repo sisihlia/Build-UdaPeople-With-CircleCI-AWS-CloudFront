@@ -54,7 +54,7 @@ jobs:
           key: frontend-build
       - slack/notify:
           event: fail
-          mentions: '@sisihlia.yuniyartii'
+          mentions: '@sisihlia.yuniyarti'
           template: basic_fail_1
 
   build-backend:
@@ -141,7 +141,7 @@ jobs:
           name: Back-end build
           command: |
             cd backend
-            npm audit fix --audit-level=critical --force
+            npm audit fix --audit-level=critical
       - slack/notify:
           event: fail
           mentions: '@sisihlia.yuniyarti'
