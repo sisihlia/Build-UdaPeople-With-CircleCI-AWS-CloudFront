@@ -54,7 +54,7 @@ jobs:
           key: frontend-build
       - slack/notify:
           event: fail
-          mentions: '@sisihlia.yuniyarti'
+          mentions: '@sisihlia.yuniyartii'
           template: basic_fail_1
 
   build-backend:
