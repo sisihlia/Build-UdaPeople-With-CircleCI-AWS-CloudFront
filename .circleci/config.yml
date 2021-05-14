@@ -201,9 +201,11 @@ jobs:
             apk add --update ansible # install the dependencies needed for your playbook
             apk add tar
             apk add gzip
+            apk add curl
             pip install awscli
       - run:
           name: Configure server
+          no_output_timeout: 15m
           command: |
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml
