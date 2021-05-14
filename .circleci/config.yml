@@ -197,10 +197,9 @@ jobs:
           at: ~/
       - run:
           name: Install dependencies
-          working_directory: ./.circleci/ansible
           command: |
             apk add --update ansible # install the dependencies needed for your playbook
-            apk add tar gzip curl
+            apk add tar gzip curl jq
             pip install awscli
       - run: cat ./.circleci/ansible/inventory.txt
       - run:
