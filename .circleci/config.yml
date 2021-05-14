@@ -188,20 +188,30 @@ jobs:
     docker:
       - image: python:3.7-alpine3.11
     steps:
-      # Checkout code from git
+      - checkout
       # Add ssh keys with fingerprint
+      - add_ssh_keys:
+          fingerprints: ["d6:f4:69:fd:84:27:81:7e:bd:9e:e0:1c:e1:e4:27:b5:c2:12:8f:35"]
       # attach workspace
+      - attach_workspace:
+          at: ~/
       - run:
           name: Install dependencies
           command: |
-            # Your code here
-            exit 1
+            apk add --update ansible # install the dependencies needed for your playbook
+            apk add tar
+            apk add gzip
+            pip install awscli
       - run:
           name: Configure server
           command: |
-            # Your code here
-            exit 1
-      # Here's where you will add some code to rollback on failure      
+            cd .circleci/ansible
+            ansible-playbook -i inventory.txt configure-server.yml
+      # Here's where you will add some code to rollback on failure    
+      - slack/notify:
+          event: fail
+          mentions: '@sisihlia.yuniyarti'
+          template: basic_fail_1  
 
   run-migrations:
     docker:
