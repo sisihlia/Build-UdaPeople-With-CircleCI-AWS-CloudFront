@@ -22,13 +22,14 @@
       # Your code here
       wait_for_connection:
         timeout: 600
+
     - name: "install python for Ansible."
       # Your code here
-      become: yes
+      become: true
       apt:
-       name: ["pyhton3"]
-       state: latest
-       update_cache: yes
+        name: ["python3"]
+        state: latest
+        update_cache: yes
 
   roles:
     # Your code here
