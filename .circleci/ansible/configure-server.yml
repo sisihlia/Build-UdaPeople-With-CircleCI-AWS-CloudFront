@@ -17,6 +17,14 @@
       TYPEORM_DATABASE: "{{ lookup('env','TYPEORM_DATABASE') }}"
       TYPEORM_MIGRATIONS: "{{ lookup('env','TYPEORM_MIGRATIONS') }}"
       TYPEORM_ENTITIES: "{{ lookup('env','TYPEORM_ENTITIES') }}"
+  pre_tasks:
+    - name: "install python for Ansible."
+      # Your code here
+      become: true
+      apt:
+        name: ["python3"]
+        state: latest
+        update_cache: yes
 
   roles:
     # Your code here
