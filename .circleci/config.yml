@@ -227,19 +227,31 @@ jobs:
           command: |
             # Your code here
             cd backend
-            echo ENVIROMENT=$ENVIROMENT > ".env"
-            echo $TYPEORM_CONNECTION
+            echo ENVIRONMENT=$ENVIRONMENT > ".env"
             echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> ".env"
-            echo $TYPEORM_MIGRATIONS_DIR
             echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> ".env"
+            echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> ".env"
+            echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> ".env"
+            echo TYPEORM_HOST=$TYPEORM_HOST >> ".env"
+            echo TYPEORM_PORT=$TYPEORM_PORT >> ".env"
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> ".env"
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> ".env"
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> ".env"
             npm install
             npm run migrations > migration_status
             cat migration_status
       - run:
           name: Send migration results to memstash
           command: |
-            # Your code here
-            exit 1
+            echo "CIRCLE_WORKFLOW_ID: ${CIRCLE_WORKFLOW_ID}"
+            if grep -q "has been executed successfully" migration_status
+            then
+              echo "DB migration succeeded"
+              curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" --request PUT --data "1" https://api.memstash.io/values/DB_MIGRATION_${CIRCLE_WORKFLOW_ID}
+            else
+              echo "DB migration failed"
+              curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" --request PUT --data "1" https://api.memstash.io/values/DB_MIGRATION_${CIRCLE_WORKFLOW_ID}
+            fi
      # Here's where you will add some code to rollback on failure       
 
   deploy-frontend:
