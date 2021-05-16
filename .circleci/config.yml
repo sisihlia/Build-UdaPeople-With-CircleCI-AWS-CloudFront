@@ -5,7 +5,7 @@ commands:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
       # Add parameter here
-      workflow_id:
+      id:
         type: string
     steps:
       - run:
@@ -14,12 +14,12 @@ commands:
           command: |
             # Your code here
             # Delete front- and back-end stacks
-            aws cloudformation delete-stack --stack-name frontend-<< parameters.workflow_id >>
-            aws cloudformation delete-stack --stack-name backend-<< parameters.workflow_id >>
+            aws cloudformation delete-stack --stack-name frontend-<< parameters.id >>
+            aws cloudformation delete-stack --stack-name backend-<< parameters.id >>
             
             # Force removal of S3 buckets, even if it's not empty
             # (see https://docs.aws.amazon.com/AmazonS3/latest/dev/delete-or-empty-bucket.html)
-            aws s3 rb s3://udapeople-<< parameters.workflow_id >> --force
+            aws s3 rb s3://udapeople-<< parameters.id >> --force
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
