@@ -11,7 +11,13 @@ commands:
           when: on_fail
           command: |
             # Your code here
-            exit 1
+            # Delete front- and back-end stacks
+            aws cloudformation delete-stack --stack-name frontend-<< parameters.workflow_id >>
+            aws cloudformation delete-stack --stack-name backend-<< parameters.workflow_id >>
+            
+            # Force removal of S3 buckets, even if it's not empty
+            # (see https://docs.aws.amazon.com/AmazonS3/latest/dev/delete-or-empty-bucket.html)
+            aws s3 rb s3://udapeople-<< parameters.workflow_id >> --force
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -26,11 +32,12 @@ commands:
             SUCCESS = 1
             if(( $SUCCESS==1 )); 
             then
-            #  cd ~/project/backend
-            #  npm install
-            #  Add revert code here. You can find this in the Getting Started section.
-              exit 1
+              cd ~/project/backend
+              npm install
+              #Add revert code here. You can find this in the Getting Started section.
+              npm run migrations:revert
             fi
+          when: on_fail
 
 orbs:
   slack: circleci/slack@4.2.0
@@ -182,7 +189,9 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
-      # Here's where you will add some code to rollback on failure      
+      - destroy-environment:
+          id: ${CIRCLE_WORKFLOW_ID}
+          when: on_fail    
 
   configure-infrastructure:
     docker:
