@@ -193,7 +193,7 @@ jobs:
             --output text >> .circleci/ansible/inventory.txt
             BACKEND_IP=`cat .circleci/ansible/inventory.txt | head -2 | tail -1`
             echo "BACKEND_IP: ${BACKEND_IP}"
-            curl -H "Content-Type: text/plain" --H "token: ${CIRCLE_WORKFLOW_ID}"  --request PUT --data ${BACKEND_IP} https://api.memstash.io/values/instance_ip
+            curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}"  --request PUT --data ${BACKEND_IP} https://api.memstash.io/values/instance_ip
       - persist_to_workspace:
           root: ~/
           paths:
