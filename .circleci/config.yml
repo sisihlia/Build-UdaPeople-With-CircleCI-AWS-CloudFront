@@ -219,11 +219,17 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
+      - checkout
+      - attach_workspace:
+          at: ~/
       - run:
           name: Run migrations
+          working_directory: ./backend
           command: |
             # Your code here
-            exit 1
+            npm i
+            npm run migrations > migration_status
+            cat migration_status
       - run:
           name: Send migration results to memstash
           command: |
