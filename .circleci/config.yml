@@ -253,27 +253,52 @@ jobs:
               curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" --request PUT --data "1" https://api.memstash.io/values/DB_MIGRATION_${CIRCLE_WORKFLOW_ID}
             fi
      # Here's where you will add some code to rollback on failure       
+     - destroy-environment:
+          id: ${CIRCLE_WORKFLOW_ID}
+          when: on_fail
+      - revert-migrations:
+          id: ${CIRCLE_WORKFLOW_ID}
+          when: on_fail
 
   deploy-frontend:
     docker:
       - image: amazon/aws-cli
     steps:
-      # Checkout code from git
+      - checkout
       - run:
           name: Install dependencies
           command: |
             # your code here
+            yum -y install tar gzip
+            # Install nodejs on Fedora Core based on nodesource website instructions
+            curl -sL https://rpm.nodesource.com/setup_lts.x | bash -
+            yum -y install nodejs
+      - attach_workspace:
+          at: ~/
       - run:
           name: Get backend url
           command: |
             # your code here
+            BACKEND_IP=`cat .circleci/ansible/inventory.txt | head -2 | tail -1`
             export API_URL="http://${BACKEND_IP}:3030"
-            echo "${API_URL}"
+            echo "API_URL: ${API_URL}"
+            export API_URL=${API_URL}
+            echo "${API_URL}" >> "frontend/.env"
       - run:
           name: Deploy frontend objects
           command: |
             # your code here
-      # Here's where you will add some code to rollback on failure      
+            cd frontend
+            npm install
+            npm run build
+      - run:
+          name: Copy to S3
+          command: |
+            aws s3 cp ./frontend/dist s3://udapeople-${CIRCLE_WORKFLOW_ID}/ --recursive
+      # Here's where you will add some code to rollback on failure
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID}
+      - revert-migrations    
                     
   deploy-backend:
     docker:
