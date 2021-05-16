@@ -223,11 +223,16 @@ jobs:
       - attach_workspace:
           at: ~/
       - run:
-          name: Run migrations
-          working_directory: ./backend
+          name: Run migration
           command: |
             # Your code here
-            npm i
+            cd backend
+            echo ENVIROMENT=$ENVIROMENT > ".env"
+            echo $TYPEORM_CONNECTION
+            echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> ".env"
+			echo $TYPEORM_MIGRATIONS_DIR
+            echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> ".env"
+            npm install
             npm run migrations > migration_status
             cat migration_status
       - run:
