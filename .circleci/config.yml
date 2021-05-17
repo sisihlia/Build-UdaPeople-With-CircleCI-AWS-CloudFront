@@ -374,9 +374,9 @@ jobs:
           name: Get backend url and backend smoke test
           command: |
             # your code here
-            BACKEND_IP=$(curl -H "token: ${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/instance_ip)
+            BACKEND_IP=`cat .circleci/ansible/inventory.txt | head -2 | tail -1`
             echo ${BACKEND_IP}
-            curl http://${BACKEND_IP}:3030/api/status
+            curl "http://${BACKEND_IP}:3030/api/status"
             if curl -s "http://${BACKEND_IP}:3030/api/status" | grep "ok"
             then
               echo "http://${BACKEND_IP}:3030/api/status"
