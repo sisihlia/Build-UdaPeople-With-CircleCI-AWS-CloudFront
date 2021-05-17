@@ -365,7 +365,7 @@ jobs:
       - attach_workspace:
           at: ~/
       - run:
-          name: Install dependencies
+          name: Install dependencies 
           command: |
             # your code here
             apk add tar gzip curl
