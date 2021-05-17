@@ -37,7 +37,7 @@ commands:
           # Add when this will run
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            SUCCESS = 1
+            SUCCESS=`curl -H "token: ${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/DB_MIGRATION_${CIRCLE_WORKFLOW_ID}`
             if(( $SUCCESS==1 )); 
             then
               cd ~/project/backend
@@ -185,7 +185,7 @@ jobs:
               --stack-name "frontend-${CIRCLE_WORKFLOW_ID}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"  
       - run:
-          name: Add back-end ip to ansible inventory and memstash
+          name: Add back-end ip to ansible inventory
           command: |
             aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
@@ -193,7 +193,6 @@ jobs:
             --output text >> .circleci/ansible/inventory.txt
             BACKEND_IP=`cat .circleci/ansible/inventory.txt | head -2 | tail -1`
             echo "BACKEND_IP: ${BACKEND_IP}"
-            curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}"  --request PUT --data ${BACKEND_IP} https://api.memstash.io/values/instance_ip
       - persist_to_workspace:
           root: ~/
           paths:
@@ -265,9 +264,6 @@ jobs:
             if grep -q "has been executed successfully" migration_status
             then
               echo "DB migration succeeded"
-              curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" --request PUT --data "1" https://api.memstash.io/values/DB_MIGRATION_${CIRCLE_WORKFLOW_ID}
-            else
-              echo "DB migration failed"
               curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" --request PUT --data "1" https://api.memstash.io/values/DB_MIGRATION_${CIRCLE_WORKFLOW_ID}
             fi
      # Here's where you will add some code to rollback on failure       
