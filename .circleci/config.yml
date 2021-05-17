@@ -340,6 +340,24 @@ jobs:
             apk add tar gzip curl nodejs npm
             pip install awscli
       - run:
+          name: add values to env files to EC2
+          command: |
+            echo ENVIROMENT=production >> "backend/.env"
+            echo TYPEORM_CONNECTION=postgres >> "backend/.env"
+            echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> "backend/.env"
+            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> "backend/.env"
+            echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> "backend/.env"
+            echo TYPEORM_HOST=$TYPEORM_HOST >> "backend/.env"
+            echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/.env"
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"    
+      - run:
+          name: Compress Backend
+          command: |
+            tar -C backend -czvf artifact.tar.gz .
+            ls -la
+      - run:
           name: Deploy backend
           command: |
             # your code here
@@ -376,15 +394,9 @@ jobs:
             # your code here
             BACKEND_IP=`cat .circleci/ansible/inventory.txt | head -2 | tail -1`
             echo ${BACKEND_IP}
-            curl "http://${BACKEND_IP}:3030/api/status"
-            if curl -s "http://${BACKEND_IP}:3030/api/status" | grep "ok"
-            then
-              echo "http://${BACKEND_IP}:3030/api/status"
-              return 0
-            else
-              echo "http://${BACKEND_IP}:3030/api/status"
-              return 1
-            fi
+            export URL="http://$BACKEND_IP:3030/api/status"
+            echo $URL
+            curl $URL
       - run:
           name: Frontend smoke test.
           command: |
