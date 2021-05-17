@@ -29,10 +29,17 @@
     path: /home/ubuntu/backend
     state: directory
 
-- name: Copy backend files to server
+- name: Copy backend files to home server
   copy:
     src: /root/project/backend
     dest: /home/ubuntu/
+
+- name: Copy backend files to root server
+  become: true
+  copy:
+    src: /root/project/backend
+    dest: /root
+    force: no
 
 - name: Install Node
   shell: |
