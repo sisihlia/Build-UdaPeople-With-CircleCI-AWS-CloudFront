@@ -41,7 +41,7 @@
     dest: /root
     force: no
 
-- name: Install Node
+- name: Install Node 
   shell: |
     cd /home/ubuntu/backend
     npm install
