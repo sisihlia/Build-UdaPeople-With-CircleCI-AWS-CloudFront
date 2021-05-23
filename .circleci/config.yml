@@ -167,7 +167,7 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
-      - run: yum -y install tar gzip # required to persist to workspace
+      - run: yum -y install tar gzip # required to persist to workspace 
       - run:
           name: Ensure back-end infrastructure exists
           command: |
