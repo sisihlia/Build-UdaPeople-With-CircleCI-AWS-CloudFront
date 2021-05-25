@@ -159,7 +159,7 @@ jobs:
             npm audit --audit-level=critical
       - slack/notify:
           event: fail
-          mentions: '@sisihlia.yuniyarti'
+          channel: ${SLACK_DEFAULT_CHANNEL}
           template: basic_fail_1
 
   deploy-infrastructure:
