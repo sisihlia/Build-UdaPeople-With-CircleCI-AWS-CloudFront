@@ -282,28 +282,29 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            yum install -y tar gzip
-            curl -sL https://rpm.nodesource.com/setup_13.x | bash -
-            yum install -y nodejs
+            # your code here
+            yum -y install tar gzip
+            # Install nodejs on Fedora Core based on nodesource website instructions
+            curl -sL https://rpm.nodesource.com/setup_lts.x | bash -
+            yum -y install nodejs
+      - attach_workspace:
+          at: ~/
       - run:
-          name: Get backend url
+          name: Get backend url and deploy frontend objects
           command: |
-            export BACKEND_IP=$(aws ec2 describe-instances \
-              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID}" \
-              --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --output text)
-            export API_URL="http://${BACKEND_IP}:3030"
-            echo "${API_URL}"
-            echo "API_URL=${API_URL}" >> ~/project/frontend/.env
-            echo "NODE_ENV=production" >> ~/project/frontend/.env
-            echo "ENVIRONMENT=production" >> ~/project/frontend/.env
-      - run:
-          name: Deploy frontend objects
-          command: |
-            cd ~/project/frontend
+            # your code here
+            BACKEND_IP=`cat .circleci/ansible/inventory.txt | head -2 | tail -1`
+            API_URL="http://${BACKEND_IP}:3030"
+            echo "API_URL: ${API_URL}"
+            export API_URL=${API_URL}
+            echo "${API_URL}" >> "frontend/.env"
+            cd frontend
             npm install
             npm run build
-            aws s3 sync dist s3://udapeople-${CIRCLE_WORKFLOW_ID}
+      - run:
+          name: Copy to S3
+          command: |
+            aws s3 cp ./frontend/dist s3://udapeople-${CIRCLE_WORKFLOW_ID}/ --recursive
       # Here's where you will add some code to rollback on failure      
       - destroy-environment:
           id: ${CIRCLE_WORKFLOW_ID}
