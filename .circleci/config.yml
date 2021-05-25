@@ -90,7 +90,7 @@ jobs:
           key: backend-build
       - slack/notify:
           event: fail
-          mentions: '@sisihlia.yuniyarti'
+          channel: ${SLACK_DEFAULT_CHANNEL}
           template: basic_fail_1
 
   test-frontend:
@@ -108,7 +108,7 @@ jobs:
             npm run test
       - slack/notify:
           event: fail
-          mentions: '@sisihlia.yuniyarti'
+          channel: ${SLACK_DEFAULT_CHANNEL}
           template: basic_fail_1
                 
   test-backend:
@@ -126,7 +126,7 @@ jobs:
             npm run test
       - slack/notify:
           event: fail
-          mentions: '@sisihlia.yuniyarti'
+          channel: ${SLACK_DEFAULT_CHANNEL}
           template: basic_fail_1
   scan-frontend:
     docker:
@@ -142,7 +142,7 @@ jobs:
             npm audit fix --audit-level=critical --force
       - slack/notify:
           event: fail
-          mentions: '@sisihlia.yuniyarti'
+          channel: ${SLACK_DEFAULT_CHANNEL}
           template: basic_fail_1
 
   scan-backend:
@@ -156,7 +156,7 @@ jobs:
           name: Back-end build
           command: |
             cd backend
-            npm audit --audit-level=critical
+            npm audit fix --audit-level=critical --force
       - slack/notify:
           event: fail
           channel: ${SLACK_DEFAULT_CHANNEL}
@@ -227,7 +227,7 @@ jobs:
       # Here's where you will add some code to rollback on failur    
       - slack/notify:
           event: fail
-          mentions: '@sisihlia.yuniyarti'
+          channel: ${SLACK_DEFAULT_CHANNEL}
           template: basic_fail_1  
 
 
