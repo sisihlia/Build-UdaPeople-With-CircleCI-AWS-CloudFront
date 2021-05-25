@@ -282,33 +282,28 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            # your code here
-            yum -y install tar gzip
-            # Install nodejs on Fedora Core based on nodesource website instructions
-            curl -sL https://rpm.nodesource.com/setup_lts.x | bash -
-            yum -y install nodejs
-      - attach_workspace:
-          at: ~/
+            yum install -y tar gzip
+            curl -sL https://rpm.nodesource.com/setup_13.x | bash -
+            yum install -y nodejs
       - run:
           name: Get backend url
           command: |
-            # your code here
-            BACKEND_IP=`cat .circleci/ansible/inventory.txt | head -2 | tail -1`
+            export BACKEND_IP=$(aws ec2 describe-instances \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID}" \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --output text)
             export API_URL="http://${BACKEND_IP}:3030"
-            echo "API_URL: ${API_URL}"
-            export API_URL=${API_URL}
-            echo "${API_URL}" >> "frontend/.env"
+            echo "${API_URL}"
+            echo "API_URL=${API_URL}" >> ~/project/frontend/.env
+            echo "NODE_ENV=production" >> ~/project/frontend/.env
+            echo "ENVIRONMENT=production" >> ~/project/frontend/.env
       - run:
           name: Deploy frontend objects
           command: |
-            # your code here
-            cd frontend
+            cd ~/project/frontend
             npm install
             npm run build
-      - run:
-          name: Copy to S3
-          command: |
-            aws s3 cp ./frontend/dist s3://udapeople-${CIRCLE_WORKFLOW_ID}/ --recursive
+            aws s3 sync dist s3://udapeople-${CIRCLE_WORKFLOW_ID}
       # Here's where you will add some code to rollback on failure      
       - destroy-environment:
           id: ${CIRCLE_WORKFLOW_ID}
@@ -331,36 +326,53 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            # your code here
             apk add --update ansible
-            apk add tar gzip curl nodejs npm
+            apk add --update tar gzip ansible nodejs npm curl
+            apk add --no-cache openssh-client
+            apk add --no-cache --upgrade bash
             pip install awscli
       - run:
-          name: add values to env files to EC2
+          name: Deploy backend
+          no_output_timeout: 30m
           command: |
             echo ENVIROMENT=production >> "backend/.env"
             echo TYPEORM_CONNECTION=postgres >> "backend/.env"
-            echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> "backend/.env"
-            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> "backend/.env"
-            echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> "backend/.env"
+            echo TYPEORM_MIGRATIONS_DIR=./migrations >> "backend/.env"
+            echo TYPEORM_ENTITIES=./modules/domain/**/*.entity.ts >> "backend/.env"
+            echo TYPEORM_MIGRATIONS=./migrations/*.ts >> "backend/.env"
             echo TYPEORM_HOST=$TYPEORM_HOST >> "backend/.env"
             echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/.env"
             echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
             echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
-            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"    
-      - run:
-          name: Compress Backend
-          command: |
-            tar -C backend -czvf artifact.tar.gz .
-            ls -la
-      - run:
-          name: Deploy backend
-          command: |
-            # your code here
-            cd .circleci/ansible
-            BACKEND_IP=`cat inventory.txt | head -2 | tail -1`
-            echo "BACKEND_IP: ${BACKEND_IP}"
-            ansible-playbook -i inventory.txt deploy-backend.yml
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
+            cd backend
+            npm i
+            npm run build
+            cp -rf node_modules ./dist/
+            echo ENVIROMENT=production >> ~/project/backend/dist/.env
+            echo TYPEORM_CONNECTION=postgres >> ~/project/backend/dist/.env
+            echo TYPEORM_MIGRATIONS_DIR=./migrations >> ~/project/backend/dist/.env
+            echo TYPEORM_ENTITIES=./modules/domain/**/*.entity.ts >> ~/project/backend/dist/.env
+            echo TYPEORM_MIGRATIONS=./migrations/*.ts >> ~/project/backend/dist/.env
+            echo TYPEORM_HOST=$TYPEORM_HOST >> ~/project/backend/dist/.env
+            echo TYPEORM_PORT=$TYPEORM_PORT >> ~/project/backend/dist/.env
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> ~/project/backend/dist/.env
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> ~/project/backend/dist/.env
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> ~/project/backend/dist/.env
+            cat dist/.env
+            tar -czvf app.tar.gz ./dist/*
+            cp app.tar.gz ~/project/.circleci/ansible/roles/deploy/files/
+            # ls
+            # cd dist
+            # ls
+            cd ~/project/.circleci/ansible
+            export ANSIBLE_HOST_KEY_CHECKING=False
+            aws ec2 describe-instances \
+                --query 'Reservations[*].Instances[*].PublicIpAddress' \
+                --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID}" \
+                --output text >> ~/project/.circleci/ansible/inventory.txt
+            cat inventory.txt
+            ansible-playbook -i inventory.txt deploy-backend.yml -vv
       # Here's where you will add some code to rollback on failure  
       - destroy-environment:
           id: ${CIRCLE_WORKFLOW_ID}
