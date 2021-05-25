@@ -42,7 +42,7 @@ commands:
             then
               cd ~/project/backend
               npm install
-              #Add revert code here. You can find this in the Getting Started section.
+              #Add revert code here. You can find this in the Getting Started section. 
               npm run migrations:revert
             fi
           when: on_fail
@@ -69,7 +69,7 @@ jobs:
           key: frontend-build
       - slack/notify:
           event: fail
-          mentions: '@sisihlia.yuniyarti'
+          channel: ${SLACK_DEFAULT_CHANNEL}
           template: basic_fail_1
 
   build-backend:
